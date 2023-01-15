@@ -1,0 +1,101 @@
+<html>
+<head><title>Home Page</title></head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+<body onload="myFunction()">
+
+<h1>Product Page <span th:text="${appName}">Our App</span></h1>
+<script>
+var dataTable;
+
+function myFunction(){
+    $(document).ready( function () {
+   dataTable= $('#table_id').DataTable( {
+    ajax: {
+        url:'/product/all',
+    dataSrc: ''    
+    },
+        columns: [
+        { data: 'id' },
+        { data: 'name' },
+         { data: 'price' }
+    ]
+} );
+});
+}
+
+$(document).ready(function() {
+  $("#prForm").submit(function(e) {
+    e.preventDefault();
+
+  var name = $("#name").val(); // get the value of the name input
+    var price = $("#price").val(); // get the value of the price input
+    var isValid = true; // variable to track if the form is valid
+    $(".form-control").removeClass("is-invalid"); // remove any existing error styles
+    if (!name) { // check if the name input is empty
+      $("#name").addClass("is-invalid"); // add the error class to the input
+      isValid = false; // update the form's valid status
+    }
+    if (!price) { // check if the price input is empty
+      $("#price").addClass("is-invalid"); // add the error class to the input
+      isValid = false; // update the form's valid status
+    }
+    if (isValid) {
+      console.log("Name: " + name + ", Price: " + price); // log the values to the console
+      // You can also send the form data to a server using an AJAX request here
+    $.ajax({
+      type: "POST",
+      url: "/product/add",
+      data: { name: name, price: price },
+      success: function(response) {
+        console.log(response);
+        dataTable.ajax.reload();
+        $("#name").val('');
+        $("#price").val('');
+      }
+    });
+    }
+
+
+  });
+});
+</script>
+
+
+<form id="prForm">
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name">
+    </div>
+    <div class="form-group">
+        <label for="price">Price:</label>
+        <input type="number" class="form-control" id="price" name="price" placeholder="Enter the price">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<table id="table_id" class="display">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Price</th>
+    </tr>
+    </thead>
+</table>
+<a href='/'>
+    <button type="button" class="btn btn-link" >Home</button>
+</a>
+<a href='/users'>
+    <button type="button" class="btn btn-link" >Users</button>
+</a>
+<a href='/products'>
+    <button type="button" class="btn btn-link" >Products</button>
+</a>
+<a href='/orderPage'>
+    <button type="button" class="btn btn-link" >Orders</button>
+</a>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<html>
+<head><title>Home Page</title></head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+<body onload="myFunction()">
+
+
+<h2>Welcome to <span th:text="${appName}">Our App</span></h2>
+<a href='/'>
+    <button type="button" class="btn btn-link" >Home</button>
+</a>
+<a href='/users'>
+    <button type="button" class="btn btn-link" >Users</button>
+</a>
+<a href='/products'>
+    <button type="button" class="btn btn-link" >Products</button>
+</a>
+<a href='/orderPage'>
+    <button type="button" class="btn btn-link" >Orders</button>
+</a>
+</body>
+</html>

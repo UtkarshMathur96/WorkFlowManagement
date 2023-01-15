@@ -1,0 +1,178 @@
+<html>
+<head><title>Home Page</title></head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+      integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
+      crossorigin="anonymous" referrerpolicy="no-referrer"/>
+<body onload="myFunction()">
+
+<h1>Order Page  <span th:text="${appName}">Our App</span></h1>
+
+<script>
+var dataTable;
+let itemCounter = 1;
+
+$(document).ready(function(){
+  $("#grocery-form").submit(function(event) {
+    event.preventDefault();
+    let formData = $(this).serializeArray();
+    var name = $("#name").val(); // get the value of the name input
+    var isValid = true; // variable to track if the form is valid
+    $(".form-control").removeClass("is-invalid"); // remove any existing error styles
+    if (!name) { // check if the name input is empty
+      $("#name").addClass("is-invalid"); // add the error class to the input
+      isValid = false; // update the form's valid status
+      return;
+    }
+
+    
+    var obj1=[]
+    for ( var index=0; index<formData.length; index+=2 ) {
+        var data = {};
+        data.name=formData[index].value;
+        data.quantity=formData[index+1].value;
+        obj1.push( data );
+    }
+console.log(obj1);
+    var payl={email:name,products:obj1};
+    fetch('/order/addByEmail', {
+        method: 'POST',
+        body: JSON.stringify(payl),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // console.log('Success:', data);
+        if(data.data.hasOwnProperty("id")){
+        window.open('order/'+data.data.id, '_blank');
+
+        }
+        if(data.data.hasOwnProperty("error")){
+        alert("Error Occured: "+data.data.error);
+
+        }
+
+    })
+    .catch((error) => {
+        // console.error('Error:', error);
+        alert(data.data);
+    });
+});
+
+});
+
+function addGroceryItem() {
+  itemCounter++;
+  const groceryItems = document.getElementById("grocery-items");
+  const newItem = document.createElement("div");
+  newItem.classList.add("grocery-item");
+  newItem.innerHTML = `
+    <label for="item-name-${itemCounter}">Item Name:</label>
+    <input type="text" id="item-name-${itemCounter}" name="item-name-${itemCounter}">
+    <label for="item-quantity-${itemCounter}">Quantity:</label>
+    <input type="number" id="item-quantity-${itemCounter}" name="item-quantity-${itemCounter}">
+    <button type="button" class="remove-item-btn" onclick="removeGroceryItem(this)">
+    <i class="fa fa-times"></i>
+    </button>
+  `;
+  groceryItems.appendChild(newItem);
+}
+
+function removeGroceryItem(element) {
+  element.parentNode.remove();
+}
+
+function on_GridActionButton_Click(event) {
+window.open('order/'+event.data.id, '_blank');
+}
+
+function myFunction(){
+    $(document).ready( function () {
+   dataTable= $('#table_id').DataTable( {
+    ajax: {
+        url:'/order/all',
+    dataSrc: ''    
+    },
+        columns: [
+        { data: 'id' },
+        { data: 'user.email' },
+        { data: 'state.state' },
+        {
+      name: "control",
+      searchable: false,
+      title: "Details",
+      orderable: false,
+      defaultContent: "<input type=\"button\" value=\"Details\" class=\"btn btn-link\">",
+      createdCell: function(cell, cellData, rowData, rowIndex, colIndex) {
+        $(cell).on("click", "input", rowData, on_GridActionButton_Click);
+      }
+  }
+    ]
+} );
+});
+}
+
+
+</script>
+
+
+<form id="prForm">
+    </br>
+
+    <div class="form-group">
+        <label for="name">User Email:</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="Enter user's Email">
+    </div>
+</form>
+<div>
+    <label>Enter Item Names and select quantity. Note: Only existing item names will be added to order</label>
+</div>
+
+<form id="grocery-form">
+    <div id="grocery-items">
+        <div class="grocery-item">
+            <label for="item-name-1">Item Name:</label>
+            <input type="text" id="item-name-1" name="item-name-1">
+            <label for="item-quantity-1">Quantity:</label>
+            <input type="number" id="item-quantity-1" name="item-quantity-1">
+            <button type="button" class="remove-item-btn" onclick="removeGroceryItem(this)">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="addGroceryItem()">Add More Item</button>
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+</form>
+</br>
+
+<table id="table_id" class="display">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>User Name</th>
+        <th>State</th>
+ <th>State2</th>
+    </tr>
+    </thead>
+</table>
+
+<a href='/'>
+    <button type="button" class="btn btn-link" >Home</button>
+</a>
+<a href='/users'>
+    <button type="button" class="btn btn-link" >Users</button>
+</a>
+<a href='/products'>
+    <button type="button" class="btn btn-link" >Products</button>
+</a>
+<a href='/orderPage'>
+    <button type="button" class="btn btn-link" >Orders</button>
+</a>
+</body>
+</html>
